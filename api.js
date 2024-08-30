@@ -41,23 +41,61 @@ app.get("/tasks", (req, res) => [
   connection.query("SELECT * FROM tasks", (err, rows) => {}),
 ]);
 
-app.get('/tasks/:id',(req,res)=>{
+app.get("/tasks/:id", (req, res) => {
   const id = req.params.id;
-  connection.query('SELECT * FROM tasks WHERE id=?'[id],(req,res)=>{
-    if(!err){
-      if(rows.length>0){
-        res.json(functions.response('Sucesso', 'Sucesso na pesquisa',rows.length,rows))
-      } else{
-        res.json(functions.response('Atenção', 'Não foi possível encontrar a task solicitada',0,null))
+  connection.query("SELECT * FROM tasks WHERE id=?"[id], (req, res) => {
+    if (!err) {
+      if (rows.length > 0) {
+        res.json(
+          functions.response(
+            "Sucesso",
+            "Sucesso na pesquisa",
+            rows.length,
+            rows
+          )
+        );
+      } else {
+        res.json(
+          functions.response(
+            "Atenção",
+            "Não foi possível encontrar a task solicitada",
+            0,
+            null
+          )
+        );
+      }
+    } else {
+      res.json(functions.response("error", err.message, 0, null));
+    }
+  });
+});
+
+app.put("/tasks/:id/status/:status", (req, res) => {
+  const id = req.params.id;
+  const status = req.params.status;
+  connection.query(
+    "UPDATE tasks SET status =? WHERE id =?",
+    [status, id],
+    (err, rows) => {
+      if (!err) {
+        if (rows.affectedRows > 0) {
+          res.json(
+            functions.response(
+              "Sucesso",
+              "Sucesso na alteração do status",
+              rows.affectedRows,
+              null
+            )
+          );
+        } else {
+          res.json(
+            functions.response("Atenção", "Task não encontrada", 0, null)
+          );
+        }
       }
     }
-    else{
-      res.json(functions.response('error',err.message,0,null))
-    }
-  })
-})
-
-app.put('/tasks/:id/status/:status',)
+  );
+});
 
 // * Middleware
 app.use((req, res) => {
